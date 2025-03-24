@@ -18,6 +18,9 @@ def main() -> None:
               help="output directory")
 def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> None:
     """Process HD spatial transcriptomics data from bins to cells."""
+    os.chdir(outdir)
+    os.makedirs("stardist", exist_ok=True)
+    
     adata = read_data(square_002um, spatial, tif, outdir)
     adata = nuclei_detection(adata)
     adata = expand_nuclei(adata)

@@ -2,7 +2,7 @@
 name = "annohdcell"
 version = "0.1.0"
 description = "Package for processing HD spatial transcriptomics data"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Zan Yuan <yfinddream@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "annohdcell"}]
@@ -14,7 +14,7 @@ scanpy = "^1.9.1"
 anndata = "^0.8.0"
 numpy = "^1.23.0"
 matplotlib = "^3.6.0"
-bin2cell = "^0.1.0"
+bin2cell = "^0.3.3"
 
 [tool.poetry.scripts]
 annohdcell = "annohdcell.cli:main"
