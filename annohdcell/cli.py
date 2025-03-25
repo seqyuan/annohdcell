@@ -41,7 +41,7 @@ def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> N
         oprefix="labels_he",
         color_by=[None, "labels_he"])
 
-    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", mpp=0.3, im="he", oprefix="stardist_identify_nuclear")
+    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", basis="spatial", mpp=0.3, im="he", oprefix="stardist_identify_nuclear")
 
     adata = expand_nuclei(adata)
     bdata1 = mask1_h5ad(adata) 
@@ -56,7 +56,7 @@ def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> N
         oprefix="labels_gex",
         color_by=[None, "labels_gex"])
 
-    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", mpp=0.3, im="gex", oprefix="b2c_identify_cell")
+    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", basis="array", mpp=0.3, im="gex", oprefix="b2c_identify_cell")
 
     cdata = bin_to_cell(adata)
     cell_visualizations(cdata, f'{outdir}/stardist')

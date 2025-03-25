@@ -165,19 +165,29 @@ def vis_nuclei_cells_heatmap(bdata1: ad.AnnData, bdata2: ad.AnnData,
         im="he", oprefix="stardist_identify_nuclear",
         basis: str="array", spatial_key: str="spatial_cropped_150_buffer"):    
 
-    fig, axs = plt.subplots(1, 2, figsize=(11, 5) )
-    crop = b2c.get_crop(bdata1, basis, spatial_key=spatial_key, mpp=mpp)
+    fig, axs = plt.subplots(1, 2, figsize=(11, 5))
+    stardist_normalize=True
+
+    crop1 = b2c.get_crop(bdata1, basis=basis, mpp=mpp)
+    if basis=="spatial":
+        stardist_normalize=False
+        crop1 = b2c.get_crop(bdata1, basis, spatial_key=spatial_key, mpp=mpp)
+
     rendered = b2c.view_labels(image_path=f"stardist/{im}.tiff", 
                             labels_npz_path=f"stardist/{im}.npz", 
-                            crop=crop
+                            crop=crop1,
+                            stardist_normalize=stardist_normalize
                             )
     axs[0].imshow(rendered)
 
     try:
-        crop = b2c.get_crop(bdata2, basis=basis, spatial_key=spatial_key, mpp=mpp)
+        crop2 = b2c.get_crop(bdata2, basis=basis, mpp=mpp)
+        if basis=="spatial":
+            crop2 = b2c.get_crop(bdata2, basis, spatial_key=spatial_key, mpp=mpp)
         rendered = b2c.view_labels(image_path=f"stardist/{im}.tiff", 
                                 labels_npz_path=f"stardist/{im}.npz", 
-                                crop=crop
+                                crop=crop2,
+                                stardist_normalize=stardist_normalize
                                 )
         axs[1].imshow(rendered)
     except:
