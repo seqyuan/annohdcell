@@ -1,7 +1,7 @@
 import click
 import os
-from .core import (read_data, nuclei_detection, expand_nuclei, vis_roi, vis_stardist, mask1_h5ad, mask2_h5ad,
-                  bin_to_cell, save_visualizations, save_intermediate_h5ad, cell_visualizations)
+from .core import (read_data, nuclei_detection, expand_nuclei, vis_roi, vis_stardist, mask1_h5ad, mask2_h5ad, stat_cell,
+                  bin_to_cell, cell_visualizations, vis_nuclei_cell, vis_nuclei_cells_heatmap)
 import scanpy as sc
 
 @click.group()
@@ -60,6 +60,7 @@ def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> N
 
     cdata = bin_to_cell(adata)
     cell_visualizations(cdata, f'{outdir}/stardist')
+    stat_cell(cdata, f'{outdir}')
 
     cdata.var_names_make_unique()
     cdata = cdata[cdata.obs['bin_count'] > 0]  # min 6 bins

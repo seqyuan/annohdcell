@@ -225,3 +225,24 @@ def custom_palets(bdata, key: str = 'labels_he'):
     extended_colors = list(base_palette) * repeat_times  # 扩展颜色列表
     c_palets = extended_colors[:n_categories]
     return c_palets
+
+
+def stat_cell(cdata: ad.AnnData, outdir: str):
+    fig, ax, = plt.subplots(figsize=(6, 5))
+    sc.pl.spatial(cdata, color=["total_counts"], size=4,
+                ax=ax,
+                img_key="0.3_mpp_150_buffer", basis="spatial_cropped_150_buffer")
+    fig.savefig(f"{outdir}/cell_total_counts.pdf")
+    fig.savefig(f"{outdir}/cell_total_counts.png")
+
+    fig, ax, = plt.subplots(figsize=(4, 4))
+    sc.pl.violin(
+        cdata,
+        ["bin_count"],
+        jitter=0,
+        ax=ax
+    )
+    ax.text(-0.5, 125, f"cell num: {cdata.obs.shape[0]}")
+    fig.savefig(f"{outdir}/cell_bin_count.pdf")
+    fig.savefig(f"{outdir}/cell_bin_count.pdf")
+
