@@ -15,6 +15,7 @@ anndata = "^0.8.0"
 numpy = "^1.23.0"
 matplotlib = "^3.6.0"
 bin2cell = "^0.3.3"
+rst2html5-tools = "^0.5.3"
 
 [tool.poetry.scripts]
 annohdcell = "annohdcell.cli:main"

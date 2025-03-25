@@ -1,5 +1,7 @@
 import click
-from .core import read_data, nuclei_detection, expand_nuclei, bin_to_cell
+import os
+from .core import (read_data, nuclei_detection, expand_nuclei, vis_roi, vis_stardist, mask1_h5ad, mask2_h5ad,
+                  bin_to_cell, save_visualizations, save_intermediate_h5ad, cell_visualizations)
 import scanpy as sc
 
 @click.group()
@@ -18,13 +20,46 @@ def main() -> None:
               help="output directory")
 def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> None:
     """Process HD spatial transcriptomics data from bins to cells."""
+    os.makedirs(f"{outdir}/stardist", exist_ok=True)
     os.chdir(outdir)
-    os.makedirs("stardist", exist_ok=True)
+    #os.makedirs("stardist", exist_ok=True)
     
     adata = read_data(square_002um, spatial, tif, outdir)
+    vis_roi(adata, outdir)
+    bdata1 = mask1_h5ad(adata)
+    bdata2 = mask2_h5ad(adata)
+    vis_stardist(bdata1, bdata2, 
+        outdir=f"{outdir}/stardist", 
+        oprefix="n_counts",
+        color_by=[None, "n_counts"])
+
     adata = nuclei_detection(adata)
+    bdata1 = mask1_h5ad(adata) 
+    bdata2 = mask2_h5ad(adata) 
+    vis_nuclei_cell(bdata1, bdata2, 
+        outdir=f"{outdir}/stardist",
+        oprefix="labels_he",
+        color_by=[None, "labels_he"])
+
+    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", mpp=0.3, im="he", oprefix="stardist_identify_nuclear")
+
     adata = expand_nuclei(adata)
+    bdata1 = mask1_h5ad(adata) 
+    bdata2 = mask2_h5ad(adata) 
+    vis_nuclei_cell(bdata1, bdata2, 
+        outdir=f"{outdir}/stardist",
+        oprefix="labels_he_expanded",
+        color_by=[None, "labels_he_expanded"])
+
+    vis_nuclei_cell(bdata1, bdata2, 
+        outdir=f"{outdir}/stardist",
+        oprefix="labels_gex",
+        color_by=[None, "labels_gex"])
+
+    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", mpp=0.3, im="gex", oprefix="b2c_identify_cell")
+
     cdata = bin_to_cell(adata)
+    cell_visualizations(cdata, f'{outdir}/stardist')
 
     cdata.var_names_make_unique()
     cdata = cdata[cdata.obs['bin_count'] > 0]  # min 6 bins
