@@ -18,8 +18,8 @@ def mask1_h5ad(adata: ad.AnnData):
 def mask2_h5ad(adata: ad.AnnData):
     mask = ((adata.obs['array_row'] >= 5400) & 
         (adata.obs['array_row'] <= 5600) & 
-        (adata.obs['array_col'] >= 16000) & 
-        (adata.obs['array_col'] <= 18000))
+        (adata.obs['array_col'] >= 11000) & 
+        (adata.obs['array_col'] <= 16000))
     return adata[mask]
 
 def read_data(square_002um: str, spatial: str, tif: str, outdir: str, mpp: float = 0.3):
@@ -46,7 +46,7 @@ def vis_roi(adata: ad.AnnData, outdir: str):
                 img_key="0.3_mpp_150_buffer", basis="spatial_cropped_150_buffer")
 
     rect1 = patches.Rectangle((1100, 900), 200, 200, linewidth=1, edgecolor='r', facecolor='none')
-    rect2 = patches.Rectangle((16000, 5400), 200, 200, linewidth=1, edgecolor='r', facecolor='none')
+    rect2 = patches.Rectangle((11000, 5400), 500, 200, linewidth=1, edgecolor='r', facecolor='none')
 
     ax.add_patch(rect1)
     ax.add_patch(rect2)
@@ -91,11 +91,11 @@ def expand_nuclei(adata: ad.AnnData, mpp: float = 0.3):
                              labels_key="labels_joint")
     return adata
 
-def bin_to_cell(adata: ad.AnnData, outdir: str):
+def bin_to_cell(adata: ad.AnnData):
+    adata.write_h5ad(f'{outdir}/b2c_2um.h5ad')
     cdata = b2c.bin_to_cell(adata, 
                           labels_key="labels_joint", 
                           spatial_keys=["spatial", "spatial_cropped_150_buffer"])
-    adata.write_h5ad(f'{outdir}/b2c_2um.h5ad')
     cdata.write_h5ad(f'{outdir}/b2c_cell.h5ad')
     return cdata
 
@@ -106,15 +106,18 @@ def vis_stardist(bdata1: ad.AnnData, bdata2: ad.AnnData,
         img_key: str="0.3_mpp_150_buffer", 
         basis: str="spatial_cropped_150_buffer"):
 
-    fig, axs = plt.subplots(1, len(color_by), figsize=(5*len(color_by)+2, 4))
-    for i, v in enumerate(color_by):
-         sc.pl.spatial(bdata1, color=v, ax=axs[i], color_map="OrRd", img_key=img_key, basis=basis, show=False)
-    plt.tight_layout()
-    fig.savefig(f'{outdir}/RO1.{oprefix}.png')
-    fig.savefig(f'{outdir}/RO1.{oprefix}.pdf')
+    try:
+        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+4, 4))
+        for i, v in enumerate(color_by):
+            sc.pl.spatial(bdata1, color=v, ax=axs[i], color_map="OrRd", img_key=img_key, basis=basis, show=False)
+        plt.tight_layout()
+        fig.savefig(f'{outdir}/RO1.{oprefix}.png')
+        fig.savefig(f'{outdir}/RO1.{oprefix}.pdf')
+    except:
+        pass
 
     try:
-        fig, axs = plt.subplots(1, len(color_by), figsize=(5*len(color_by)-1, 5))
+        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+4, 5))
         for i, v in enumerate(color_by):
             sc.pl.spatial(bdata2, color=v, ax=axs[i], color_map="OrRd", img_key=img_key, basis=basis, show=False)
         plt.tight_layout()
@@ -142,16 +145,19 @@ def vis_nuclei_cell(bdata1: ad.AnnData, bdata2: ad.AnnData,
 
     c_palets1 = custom_palets(bdata1, key=color_by[1])
     c_palets2 = custom_palets(bdata2, key=color_by[1])
-    
-    fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+2, 4))
-    for i, v in enumerate(color_by):
-        sc.pl.spatial(bdata1, color=v, ax=axs[i], img_key=img_key, basis=basis, show=False, legend_loc='none', palette=c_palets1)  
-    plt.tight_layout()
-    fig.savefig(f'{outdir}/RO1.{oprefix}.png')
-    fig.savefig(f'{outdir}/RO1.{oprefix}.pdf')
+
+    try:
+        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+4, 4))
+        for i, v in enumerate(color_by):
+            sc.pl.spatial(bdata1, color=v, ax=axs[i], img_key=img_key, basis=basis, show=False, legend_loc='none', palette=c_palets1)  
+        plt.tight_layout()
+        fig.savefig(f'{outdir}/RO1.{oprefix}.png')
+        fig.savefig(f'{outdir}/RO1.{oprefix}.pdf')
+    except:
+        pass
     
     try:
-        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+2, 4))
+        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+4, 4))
         for i, v in enumerate(color_by):
             sc.pl.spatial(bdata2, color=v, ax=axs[i], img_key=img_key, basis=basis, show=False, legend_loc='none', palette=c_palets2)  
         plt.tight_layout()
@@ -168,17 +174,20 @@ def vis_nuclei_cells_heatmap(bdata1: ad.AnnData, bdata2: ad.AnnData,
     fig, axs = plt.subplots(1, 2, figsize=(11, 5))
     stardist_normalize=True
 
-    crop1 = b2c.get_crop(bdata1, basis=basis, mpp=mpp)
-    if basis=="spatial":
-        stardist_normalize=False
-        crop1 = b2c.get_crop(bdata1, basis, spatial_key=spatial_key, mpp=mpp)
+    try:
+        crop1 = b2c.get_crop(bdata1, basis=basis, mpp=mpp)
+        if basis=="spatial":
+            stardist_normalize=False
+            crop1 = b2c.get_crop(bdata1, basis, spatial_key=spatial_key, mpp=mpp)
 
-    rendered = b2c.view_labels(image_path=f"stardist/{im}.tiff", 
-                            labels_npz_path=f"stardist/{im}.npz", 
-                            crop=crop1,
-                            stardist_normalize=stardist_normalize
-                            )
-    axs[0].imshow(rendered)
+        rendered = b2c.view_labels(image_path=f"stardist/{im}.tiff", 
+                                labels_npz_path=f"stardist/{im}.npz", 
+                                crop=crop1,
+                                stardist_normalize=stardist_normalize
+                                )
+        axs[0].imshow(rendered)
+    except:
+        pass
 
     try:
         crop2 = b2c.get_crop(bdata2, basis=basis, mpp=mpp)
@@ -196,21 +205,34 @@ def vis_nuclei_cells_heatmap(bdata1: ad.AnnData, bdata2: ad.AnnData,
     fig.savefig(f'{outdir}/ROI.{oprefix}.pdf')
     fig.savefig(f'{outdir}/ROI.{oprefix}.png')
 
-def cell_visualizations(cdata: ad.AnnData, outdir: str):
+def cell_visualizations(cdata: ad.AnnData, outdir: str, 
+    img_key: str="0.3_mpp_150_buffer", basis: str="spatial_cropped_150_buffer", 
+    oprefix: str="slice", 
+    color_by=["bin_count", "total_counts"]):
+
     mask1 = mask1_h5ad(cdata) 
     mask2 = mask2_h5ad(cdata) 
 
     ddata1 = cdata[mask1]
     ddata2 = cdata[mask2]
 
-    sc.pl.spatial(ddata1, color=["bin_count", "total_counts"], 
-        img_key="0.3_mpp_150_buffer", basis="spatial_cropped_150_buffer", 
-        save=f'{outdir}/RO1.cell_bin_count.png')
+    try:
+        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+4, 4))
+        for i, v in enumerate(color_by):
+            sc.pl.spatial(ddata1, color=v, ax=axs[i], img_key=img_key, basis=basis, show=False)  
+        plt.tight_layout()
+        fig.savefig(f'{outdir}/ROI1.{oprefix}.png')
+        fig.savefig(f'{outdir}/ROI1.{oprefix}.pdf')
+    except:
+        pass
 
     try:
-        sc.pl.spatial(ddata2, color=["bin_count", "total_counts"], 
-            img_key="0.3_mpp_150_buffer", basis="spatial_cropped_150_buffer", 
-            save=f'{outdir}/RO2.cell_bin_count.png')
+        fig, axs = plt.subplots(1, len(color_by), figsize=(4*len(color_by)+4, 4))
+        for i, v in enumerate(color_by):
+            sc.pl.spatial(ddata2, color=v, ax=axs[i], img_key=img_key, basis=basis, show=False)  
+        plt.tight_layout()
+        fig.savefig(f'{outdir}/ROI1.{oprefix}.png')
+        fig.savefig(f'{outdir}/ROI1.{oprefix}.pdf')
     except:
         pass
 
@@ -245,4 +267,3 @@ def stat_cell(cdata: ad.AnnData, outdir: str):
     ax.text(-0.5, 125, f"cell num: {cdata.obs.shape[0]}")
     fig.savefig(f"{outdir}/cell_bin_count.pdf")
     fig.savefig(f"{outdir}/cell_bin_count.pdf")
-

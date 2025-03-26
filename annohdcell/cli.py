@@ -26,26 +26,23 @@ def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> N
     
     adata = read_data(square_002um, spatial, tif, outdir)
     vis_roi(adata, outdir)
-    bdata1 = mask1_h5ad(adata)
-    bdata2 = mask2_h5ad(adata)
+    
+    adata = nuclei_detection(adata)
+    adata = expand_nuclei(adata)
+    cdata = bin_to_cell(adata)
+    
+    bdata1 = mask1_h5ad(adata) 
+    bdata2 = mask2_h5ad(adata) 
     vis_stardist(bdata1, bdata2, 
         outdir=f"{outdir}/stardist", 
         oprefix="n_counts",
         color_by=[None, "n_counts"])
-
-    adata = nuclei_detection(adata)
-    bdata1 = mask1_h5ad(adata) 
-    bdata2 = mask2_h5ad(adata) 
+    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", basis="spatial", mpp=0.3, im="he", oprefix="stardist_identify_nuclear")
     vis_nuclei_cell(bdata1, bdata2, 
         outdir=f"{outdir}/stardist",
         oprefix="labels_he",
         color_by=[None, "labels_he"])
 
-    vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", basis="spatial", mpp=0.3, im="he", oprefix="stardist_identify_nuclear")
-
-    adata = expand_nuclei(adata)
-    bdata1 = mask1_h5ad(adata) 
-    bdata2 = mask2_h5ad(adata) 
     vis_nuclei_cell(bdata1, bdata2, 
         outdir=f"{outdir}/stardist",
         oprefix="labels_he_expanded",
@@ -58,7 +55,6 @@ def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> N
 
     vis_nuclei_cells_heatmap(bdata1, bdata2, outdir=f"{outdir}/stardist", basis="array", mpp=0.3, im="gex", oprefix="b2c_identify_cell")
 
-    cdata = bin_to_cell(adata)
     cell_visualizations(cdata, f'{outdir}/stardist')
     stat_cell(cdata, f'{outdir}')
 
