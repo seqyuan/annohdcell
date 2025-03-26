@@ -1,6 +1,6 @@
 # annohdcell
 
-Python package for processing HD spatial transcriptomics data
+Python package wrapper of bin2cell for 10 HD spatial transcriptomics identify cell
 
 ## Installation
 
@@ -16,6 +16,7 @@ Process HD spatial data from bins to cells:
 ```bash
 annohdcell bin2cell \
   -d /path/to/square_002um \
+  -s /path/to/square_002um/spatial \
   -t /path/to/image.tif \
   -o /path/to/output
 ```
