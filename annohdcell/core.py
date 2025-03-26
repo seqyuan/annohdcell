@@ -92,11 +92,9 @@ def expand_nuclei(adata: ad.AnnData, mpp: float = 0.3):
     return adata
 
 def bin_to_cell(adata: ad.AnnData):
-    adata.write_h5ad(f'{outdir}/b2c_2um.h5ad')
     cdata = b2c.bin_to_cell(adata, 
                           labels_key="labels_joint", 
                           spatial_keys=["spatial", "spatial_cropped_150_buffer"])
-    cdata.write_h5ad(f'{outdir}/b2c_cell.h5ad')
     return cdata
 
 def vis_stardist(bdata1: ad.AnnData, bdata2: ad.AnnData, 

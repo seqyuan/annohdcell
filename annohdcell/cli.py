@@ -26,10 +26,12 @@ def hd_cell_segment(square_002um: str, spatial: str, tif: str, outdir: str) -> N
     
     adata = read_data(square_002um, spatial, tif, outdir)
     vis_roi(adata, outdir)
-    
+
     adata = nuclei_detection(adata)
     adata = expand_nuclei(adata)
+    adata.write_h5ad(f'{outdir}/b2c_2um.h5ad')
     cdata = bin_to_cell(adata)
+    cdata.write_h5ad(f'{outdir}/b2c_cell.h5ad')
     
     bdata1 = mask1_h5ad(adata) 
     bdata2 = mask2_h5ad(adata) 
